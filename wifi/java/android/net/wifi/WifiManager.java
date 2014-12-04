@@ -1952,8 +1952,7 @@ public class WifiManager {
      * This function is used instead of a sequence of removeNetwork()
      * and saveConfiguration().
      *
-     * @param config the set of variables that describe the configuration,
-     *            contained in a {@link WifiConfiguration} object.
+     * @param netId is the network Id
      * @param listener for callbacks on success or failure. Can be null.
      * @throws IllegalStateException if the WifiManager instance needs to be
      * initialized again

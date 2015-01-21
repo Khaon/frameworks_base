@@ -52,6 +52,7 @@ import com.android.systemui.qs.tiles.UsbTetherTile;
 import com.android.systemui.qs.tiles.ScreenshotTile;
 import com.android.systemui.qs.tiles.ScreenTimeoutTile;
 import com.android.systemui.qs.tiles.SyncTile;
+import com.android.systemui.qs.tiles.VisualizerTile;
 import com.android.systemui.qs.tiles.WifiTile;
 import com.android.systemui.qs.tiles.HeadsUpTile;
 import com.android.systemui.settings.CurrentUserTracker;
@@ -290,9 +291,9 @@ public class QSTileHost implements QSTile.Host {
                 return new NfcTile(this);   
             case QSConstants.TILE_LTE:
                 return new LteTile(this);
-	    case QSConstants.TILE_SCREEN_TIMEOUT:
+            case QSConstants.TILE_SCREEN_TIMEOUT:
                 return new ScreenTimeoutTile(this);
-	    case QSConstants.TILE_SCREEN_OFF:
+            case QSConstants.TILE_SCREEN_OFF:
                 return new ScreenOffTile(this);
             case QSConstants.TILE_EXPANDED_DESKTOP:
                 return new ExpandedDesktopTile(this);           
@@ -304,6 +305,8 @@ public class QSTileHost implements QSTile.Host {
                 return new ScreenshotTile(this);
             case QSConstants.TILE_HEADS_UP:
                 return new HeadsUpTile(this);
+            case QSConstants.TILE_VISUALIZER:
+                return new VisualizerTile(this);
             default:
                 throw new IllegalArgumentException("Bad tile spec: " + tileSpec);
         }

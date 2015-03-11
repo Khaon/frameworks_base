@@ -36,6 +36,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.InsetDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -132,6 +133,10 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
     private boolean mScreenOn;
     private boolean mLinked;
 
+    private boolean mVisualizerEnabled;
+    private boolean mPowerSaveModeEnabled;
+    private SettingsObserver mSettingsObserver;
+
     public KeyguardBottomAreaView(Context context) {
         this(context, null);
     }
@@ -150,6 +155,8 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
         mTrustDrawable = new TrustDrawable(mContext);
         mLinearOutSlowInInterpolator =
                 AnimationUtils.loadInterpolator(context, android.R.interpolator.linear_out_slow_in);
+        mSettingsObserver = new SettingsObserver(new Handler());
+
     }
 
     private AccessibilityDelegate mAccessibilityDelegate = new AccessibilityDelegate() {
@@ -492,8 +499,18 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
     }
 
     @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mContext.registerReceiver(mReceiver, new IntentFilter(
+                PowerManager.ACTION_POWER_SAVE_MODE_CHANGING));
+        mSettingsObserver.observe();
+    }
+
+    @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        mSettingsObserver.unobserve();
+        mContext.unregisterReceiver(mReceiver);
         mTrustDrawable.stop();
         requestVisualizer(false, 0);
     }
@@ -652,6 +669,19 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
         }
     };
 
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (PowerManager.ACTION_POWER_SAVE_MODE_CHANGING.equals(intent.getAction())) {
+                mPowerSaveModeEnabled = intent.getBooleanExtra(PowerManager.EXTRA_POWER_SAVE_MODE,
+                        false);
+                removeCallbacks(mStartVisualizer);
+                removeCallbacks(mStopVisualizer);
+                post(mPowerSaveModeEnabled ? mStopVisualizer : mStartVisualizer);
+            }
+        }
+    };
+
     private final KeyguardUpdateMonitorCallback mUpdateMonitorCallback =
             new KeyguardUpdateMonitorCallback() {
         @Override
@@ -719,6 +749,9 @@ public class KeyguardBottomAreaView extends FrameLayout implements View.OnClickL
     }
 
     public void requestVisualizer(boolean show, int delay) {
+        if (mVisualizer == null || !mVisualizerEnabled || mPowerSaveModeEnabled) {
+            return;
+        }
         removeCallbacks(mStartVisualizer);
         removeCallbacks(mStopVisualizer);
         if (DEBUG) Log.d(TAG, "requestVisualizer(show: " + show + ", delay: " + delay + ")");

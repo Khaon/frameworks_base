@@ -51,11 +51,9 @@ aaptSources := \
 aaptTests := \
     tests/AaptConfig_test.cpp \
     tests/AaptGroupEntry_test.cpp \
-    tests/Pseudolocales_test.cpp \
     tests/ResourceFilter_test.cpp
 
 aaptCIncludes := \
-    system/core/base/include \
     external/libpng \
     external/zlib
 
@@ -99,6 +97,7 @@ LOCAL_C_INCLUDES += $(aaptCIncludes)
 LOCAL_SRC_FILES := $(aaptSources)
 
 include $(BUILD_HOST_STATIC_LIBRARY)
+
 
 # ==========================================================
 # Build the host executable: aapt

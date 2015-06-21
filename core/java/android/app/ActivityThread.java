@@ -5128,14 +5128,6 @@ public final class ActivityThread {
                     }
                 }
             }.start();
-
-            try {
-                if (mgr != null) {
-                    mgr.attachApplication(mAppThread);
-                }
-            } catch (RemoteException ex) {
-                // Ignore
-            }
             // Watch for getting close to heap limit.
             BinderInternal.addGcWatcher(new Runnable() {
                 @Override public void run() {
@@ -5151,9 +5143,7 @@ public final class ActivityThread {
                                 + " used=" + (dalvikUsed/1024));
                         mSomeActivitiesChanged = false;
                         try {
-                            if (mgr != null) {
-                                mgr.releaseSomeActivities(mAppThread);
-                            }
+                            mgr.releaseSomeActivities(mAppThread);
                         } catch (RemoteException e) {
                         }
                     }
